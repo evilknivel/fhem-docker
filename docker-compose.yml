@@ -19,41 +19,34 @@ services:
             - "mysql"
             - "mqtt"
 
-    homebridge:
-        restart: always
-        image: oznu/homebridge
-        volumes:
-            - ./homebridge/config.json:/homebridge/config.json
-            - ./homebridge/package.json:/homebridge/package.json
-        environment:
-            - TZ=Europe/Berlin
-            - PGID=1000
-            - PUID=1000
-        network_mode: host
-        depends_on:
-            - "fhem"
+  owncloud:
+    image: owncloud
+    restart: always
+    expose:
+        - "8080"
+        - "80"
+    ports:
+      - "8080"
+      - "80"
+    networks:
+        - fhem-network
+    depends_on:
+        - "mysql"
 
-    habridge:
-        restart: always
-        build: habridge
-        network_mode: host
 
-    mysql:
-        restart: always
-        expose:
-            - "3306"
-            - "33060"
-        ports:
-            - "3306:3306"
-            - "33060:33060"
-        image: mysql/mysql-server:5.7
-        volumes:
-            - ./mysql/init.sql:/docker-entrypoint-initdb.d/fhem-init.sql
-            - ./mysql/data:/var/lib/mysql
-        environment:
-            - MYSQL_RANDOM_ROOT_PASSWORD=yes
-        networks:
-            - fhem-network
+  mysql:
+    image: mariadb
+    restart: always
+    expose:
+        - "3306"
+        - "33060"
+    ports:
+        - "3306:3306"
+        - "33060:33060"
+    networks:
+        - fhem-network
+    environment:
+      MYSQL_ROOT_PASSWORD: example
 
     mqtt:
         restart: always
