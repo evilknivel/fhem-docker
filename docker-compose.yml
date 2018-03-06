@@ -9,7 +9,7 @@ services:
         ports:
             - "8083:8083"
             - "7072:7072"
-        build: fhem
+        image: michaelatdocker/fhem
         privileged: true
         volumes:
             - ./fhem/core/:/opt/fhem/
@@ -26,8 +26,8 @@ services:
         - "8080"
         - "80"
     ports:
-      - "8080"
-      - "80"
+      - "8080:8080"
+      - "80:80"
     networks:
         - fhem-network
     depends_on:
@@ -77,6 +77,22 @@ services:
             - fhem-network
         depends_on:
             - "mqtt"
+            
+    pyload:
+        restart: always
+        expose:
+            - "8000"
+        ports:
+            - "8000:8000"
+        image: writl/pyload:latest
+        volumes:
+            -  /opt/pyload/Downloads:/opt/pyload/Downloads
+            -  /opt/pyload/Downloads:/opt/pyload/pyload-config
+        networks:
+            - fhem-network
+        depends_on:
+            - "mqtt"    
+            
 
 networks:
     fhem-network:
